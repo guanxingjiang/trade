@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<Configuration status="WARN">
+	<Properties>
+		<Property name="logDir">D://study/trade/logs</Property>
+		<Property name="logFile">trade</Property>
+	</Properties>
+
+	<Appenders>
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<PatternLayout pattern="[%5p][%d{yyyy-MM-dd HH:mm:ss,SSS}] (%F:%L) %m%n" />
+		</Console>
+
+		<RollingFile name="RollingFile" fileName="${logDir}/${logFile}.log" immediateFlush="false"
+			filePattern="${logDir}/{date:yyyy-MM}/${logFile}.%d{yyyy-MM-dd}-%i.log.gz">
+
+			<PatternLayout pattern="[%5p][%d{yyyy-MM-dd HH:mm:ss,SSS}] (%F:%L) %m%n" />
+
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="500 MB" />
+			</Policies>
+
+			<DefaultRolloverStrategy max="100">
+				<Delete basePath="${logDir}" maxDepth="2">
+					<IfFileName glob="*.log.gz">
+						<IfLastModified age="7d">
+							<IfAny>
+								<!--keep <= 5GB,线上Docker容器只有10G容量 -->
+								<IfAccumulatedFileSize exceeds="5 GB" />
+								<!--keep file count <=100 -->
+								<IfAccumulatedFileCount exceeds="100" />
+							</IfAny>
+						</IfLastModified>
+					</IfFileName>
+				</Delete>
+			</DefaultRolloverStrategy>
+		</RollingFile>
+	</Appenders>
+
+	<Loggers>
+		<Root level="INFO">
+			<AppenderRef ref="STDOUT" />
+			<AppenderRef ref="RollingFile" />
+		</Root>
+	</Loggers>
+</Configuration>
